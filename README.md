@@ -22,8 +22,8 @@ gulp.task('js', function() {
 		.pipe(gulp.dest('./dest/js'));
 });
 
-gulp.task('watch', function() {
-	gulp.watch(['src/**/*.js'], ['js']);
+gulp.task('watch', ['js'], function() {
+	gulp.watch('src/**/*.js', ['js']);
 });
 
 gulp.task('default', ['watch']);
