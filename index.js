@@ -33,8 +33,6 @@ Plugin.prototype._processingContent = function (file, content) {
     this.files.push(file);
 
     return content.replace(DIRECTIVE_REGEXP, function (match, fileInclude) {
-        //if (!fileInclude)
-        console.log(arguments);
         var fullFileInclude = path.normalize(path.dirname(file) + path.sep + fileInclude);
         return self._processingContent(fullFileInclude, getFileContent(fullFileInclude));
     });
