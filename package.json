@@ -1,6 +1,6 @@
 {
   "name": "gulp-browser-js-include",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "This plugin recursively expand files it includes, so you can nest includes inside of files that were themselves included.",
   "main": "index.js",
   "scripts": {
