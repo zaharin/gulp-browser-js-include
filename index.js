@@ -8,7 +8,7 @@ var
 const
     PLUGIN_NAME = 'gulp-browser-js-include';
 
-var DIRECTIVE_REGEXP = /^[\/]{2,}=\s*(?:require|include)\s+?(\S)*/g;
+var DIRECTIVE_REGEXP = /[\/]{2,}=[ ]*(?:require|include)[ ]+(\S*).*/g;
 
 function getFileContent(file) {
     if (!fs.existsSync(file) )
@@ -33,6 +33,8 @@ Plugin.prototype._processingContent = function (file, content) {
     this.files.push(file);
 
     return content.replace(DIRECTIVE_REGEXP, function (match, fileInclude) {
+        //if (!fileInclude)
+        console.log(arguments);
         var fullFileInclude = path.normalize(path.dirname(file) + path.sep + fileInclude);
         return self._processingContent(fullFileInclude, getFileContent(fullFileInclude));
     });
