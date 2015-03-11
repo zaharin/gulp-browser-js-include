@@ -8,7 +8,7 @@ var
 const
     PLUGIN_NAME = 'gulp-browser-js-include';
 
-var DIRECTIVE_REGEXP = /[\/]{2,}=[ ]*(?:require|include)[ ]+(\S*).*/g;
+var DIRECTIVE_REGEXP = /[\/]{2,}= *(?:require|include) +(\S*).*(?:\r)?(?:\n)?/g;
 
 function getFileContent(file) {
     if (!fs.existsSync(file) )
