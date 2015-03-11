@@ -8,7 +8,7 @@ var
 const
     PLUGIN_NAME = 'gulp-browser-js-include';
 
-var DIRECTIVE_REGEXP = /[\/]{2,}= *(?:require|include) +(\S*).*(?:\r)?(?:\n)?/g;
+var DIRECTIVE_REGEXP = /[\/]{2,}= *(?:require|include) +(\S*).*/g;
 
 function getFileContent(file) {
     if (!fs.existsSync(file) )
@@ -17,12 +17,28 @@ function getFileContent(file) {
     return fs.readFileSync(file, { encoding: 'utf8' });
 }
 
-function Plugin() {
+function Plugin(options) {
     this.files = [];
+
+    this.mainFile = '';
+    this.currFile = '';
+
+    this.options = {
+        searchValue: options && options.searchValue ? options.searchValue : null,
+        replaceValue: options && options.replaceValue ? options.replaceValue : null
+    };
+
+    if (typeof this.options.replaceValue === 'function') {
+        this.options.replaceValue = this.options.replaceValue.bind(this);
+    }
 }
 
 Plugin.prototype.execute = function (file, content) {
     this.files = [];
+
+    this.mainFile = file;
+    this.currFile = file;
+
     return this._processingContent(file, content);
 };
 
@@ -31,6 +47,10 @@ Plugin.prototype._processingContent = function (file, content) {
 
     if (this.files.indexOf(file) > -1) return '';
     this.files.push(file);
+    this.currFile = file;
+    if (this.options.searchValue && this.options.replaceValue) {
+        content = content.replace(this.options.searchValue, this.options.replaceValue);
+    }
 
     return content.replace(DIRECTIVE_REGEXP, function (match, fileInclude) {
         var fullFileInclude = path.normalize(path.dirname(file) + path.sep + fileInclude);
@@ -38,11 +58,11 @@ Plugin.prototype._processingContent = function (file, content) {
     });
 };
 
-function gulpBrowserJsInclude() {
+function gulpBrowserJsInclude(options) {
+    var plugin = new Plugin(options);
+
     return through.obj(function(file, enc, cb) {
-        var plugin
-            , content
-            ;
+        var content;
 
         if (file.isStream()) {
             this.emit('error', new PluginError(PLUGIN_NAME, 'Stream content is not supported'));
@@ -51,7 +71,6 @@ function gulpBrowserJsInclude() {
 
         if (file.isBuffer()) {
             try {
-                plugin = new Plugin();
                 content = plugin.execute(path.normalize(file.path), file.contents.toString('utf8'));
                 file.contents = new Buffer(content);
             } catch (err) {
